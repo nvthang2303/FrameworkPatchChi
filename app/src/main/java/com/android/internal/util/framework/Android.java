@@ -3,6 +3,7 @@ package com.android.internal.util.framework;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
