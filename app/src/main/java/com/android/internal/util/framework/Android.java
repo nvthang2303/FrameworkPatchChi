@@ -54,7 +54,7 @@ public final class Android {
     private static final Map<String, String> map = new HashMap<>();
     private static CertificateFactory certificateFactory;
 
-    public static void initialize(Context context) {
+    static {
         try {
             // Lấy tài nguyên từ ứng dụng khác
             String otherAppPackageName = "com.example.otherapp"; // Thay bằng tên gói của ứng dụng khác
