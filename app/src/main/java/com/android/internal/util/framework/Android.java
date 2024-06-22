@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import android.content.res.Resources;
 import java.util.Random;
-@Obfuscate
+
 public final class Android {
     private static final String TAG = "chiteroman";
     private static final PEMKeyPair EC, RSA;
@@ -59,28 +59,29 @@ public final class Android {
     private static final CertificateFactory certificateFactory;
 
     static {
-        String packageName = "org.miuitn.pif";
-        Resources resources = pm.getResourcesForApplication(packageName);
-        int resourceId = resources.getIdentifier("device_arrays", "array", packageName);
-        String[] deviceArrays = resources.getStringArray(resourceId);
-        int randomIndex = new Random().nextInt(deviceArrays.length);
-        int selectedArrayResId = resources.getIdentifier(deviceArrays[randomIndex], "array", packageName);
-        String selectedArrayName = resources.getResourceEntryName(selectedArrayResId);
-        String[] selectedDeviceProps = resources.getStringArray(selectedArrayResId);
-
-        map.put("MANUFACTURER", "selectedDeviceProps[0]");
-        map.put("MODEL", "selectedDeviceProps[1]");
-        map.put("FINGERPRINT", "selectedDeviceProps[2]");
-        map.put("BRAND", "selectedDeviceProps[3]");
-        map.put("PRODUCT", "selectedDeviceProps[4]");
-        map.put("DEVICE", "selectedDeviceProps[5]");
-        map.put("RELEASE", "selectedDeviceProps[6]");
-        map.put("ID", "selectedDeviceProps[7]");
-        map.put("INCREMENTAL", "selectedDeviceProps[8]");
-        map.put("SECURITY_PATCH", "selectedDeviceProps[11]");
-        map.put("TYPE", "selectedDeviceProps[9]");
-        map.put("TAGS", "selectedDeviceProps[10]");
         try {
+            String packageName = "org.miuitn.pif";
+            PackageManager pm = context.getPackageManager();
+            Resources resources = pm.getResourcesForApplication(packageName);
+            int resourceId = resources.getIdentifier("device_arrays", "array", packageName);
+            String[] deviceArrays = resources.getStringArray(resourceId);
+            int randomIndex = new Random().nextInt(deviceArrays.length);
+            int selectedArrayResId = resources.getIdentifier(deviceArrays[randomIndex], "array", packageName);
+            String[] selectedDeviceProps = resources.getStringArray(selectedArrayResId);
+
+            map.put("MANUFACTURER", selectedDeviceProps[0]);
+            map.put("MODEL", selectedDeviceProps[1]);
+            map.put("FINGERPRINT", selectedDeviceProps[2]);
+            map.put("BRAND", selectedDeviceProps[3]);
+            map.put("PRODUCT", selectedDeviceProps[4]);
+            map.put("DEVICE", selectedDeviceProps[5]);
+            map.put("RELEASE", selectedDeviceProps[6]);
+            map.put("ID", selectedDeviceProps[7]);
+            map.put("INCREMENTAL", selectedDeviceProps[8]);
+            map.put("SECURITY_PATCH", selectedDeviceProps[11]);
+            map.put("TYPE", selectedDeviceProps[9]);
+            map.put("TAGS", selectedDeviceProps[10]);
+
             certificateFactory = CertificateFactory.getInstance("X.509");
 
             EC = parseKeyPair(Keybox.EC.PRIVATE_KEY);
@@ -90,11 +91,16 @@ public final class Android {
             RSA = parseKeyPair(Keybox.RSA.PRIVATE_KEY);
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_1));
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_2));
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Application not found: " + e.toString());
+            throw new RuntimeException(e);
         } catch (Throwable t) {
             Log.e(TAG, t.toString());
             throw new RuntimeException(t);
         }
     }
+
+
 
     private static PEMKeyPair parseKeyPair(String key) throws Throwable {
         try (PEMParser parser = new PEMParser(new StringReader(key))) {
