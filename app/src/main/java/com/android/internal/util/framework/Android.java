@@ -7,7 +7,7 @@ import android.os.Build;
 import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
 import android.util.Log;
-
+import android.content.pm.PackageInfo;
 
 import org.lsposed.lsparanoid.Obfuscate;
 import org.spongycastle.asn1.ASN1Boolean;
