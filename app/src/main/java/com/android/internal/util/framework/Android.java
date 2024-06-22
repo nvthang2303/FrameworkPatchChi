@@ -43,6 +43,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import android.content.res.Resources;
 
 public final class Android {
     private static final String TAG = "chiteroman";
