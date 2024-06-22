@@ -44,30 +44,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Obfuscate
 public final class Android {
     private static final String TAG = "chiteroman";
-    private static final PEMKeyPair EC, RSA;
+    private static PEMKeyPair EC, RSA;
     private static final ASN1ObjectIdentifier OID = new ASN1ObjectIdentifier("1.3.6.1.4.1.11129.2.1.17");
     private static final List<Certificate> EC_CERTS = new ArrayList<>();
     private static final List<Certificate> RSA_CERTS = new ArrayList<>();
     private static final Map<String, String> map = new HashMap<>();
-    private static final CertificateFactory certificateFactory;
+    private static CertificateFactory certificateFactory;
 
-    static {
-        map.put("MANUFACTURER", "Google");
-        map.put("MODEL", "Pixel");
-        map.put("FINGERPRINT", "google/sailfish/sailfish:8.1.0/OPM1.171019.011/4448085:user/release-keys");
-        map.put("BRAND", "google");
-        map.put("PRODUCT", "sailfish");
-        map.put("DEVICE", "sailfish");
-        map.put("RELEASE", "8.1.0");
-        map.put("ID", "OPM1.171019.011");
-        map.put("INCREMENTAL", "4448085");
-        map.put("SECURITY_PATCH", "2017-12-05");
-        map.put("TYPE", "user");
-        map.put("TAGS", "release-keys");
+    public static void initialize(Context context) {
         try {
+            // Lấy tài nguyên từ ứng dụng khác
+            String otherAppPackageName = "com.example.otherapp"; // Thay bằng tên gói của ứng dụng khác
+            Context otherAppContext = context.createPackageContext(otherAppPackageName, Context.CONTEXT_IGNORE_SECURITY);
+            Resources res = otherAppContext.getResources();
+
+            map.put("MANUFACTURER", res.getString(res.getIdentifier("manufacturer", "string", otherAppPackageName)));
+            map.put("MODEL", res.getString(res.getIdentifier("model", "string", otherAppPackageName)));
+            map.put("FINGERPRINT", res.getString(res.getIdentifier("fingerprint", "string", otherAppPackageName)));
+            map.put("BRAND", res.getString(res.getIdentifier("brand", "string", otherAppPackageName)));
+            map.put("PRODUCT", res.getString(res.getIdentifier("product", "string", otherAppPackageName)));
+            map.put("DEVICE", res.getString(res.getIdentifier("device", "string", otherAppPackageName)));
+            map.put("RELEASE", res.getString(res.getIdentifier("release", "string", otherAppPackageName)));
+            map.put("ID", res.getString(res.getIdentifier("id", "string", otherAppPackageName)));
+            map.put("INCREMENTAL", res.getString(res.getIdentifier("incremental", "string", otherAppPackageName)));
+            map.put("SECURITY_PATCH", res.getString(res.getIdentifier("security_patch", "string", otherAppPackageName)));
+            map.put("TYPE", res.getString(res.getIdentifier("type", "string", otherAppPackageName)));
+            map.put("TAGS", res.getString(res.getIdentifier("tags", "string", otherAppPackageName)));
+
+            // Khởi tạo CertificateFactory và các cặp khóa
             certificateFactory = CertificateFactory.getInstance("X.509");
 
             EC = parseKeyPair(Keybox.EC.PRIVATE_KEY);
@@ -77,6 +83,9 @@ public final class Android {
             RSA = parseKeyPair(Keybox.RSA.PRIVATE_KEY);
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_1));
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_2));
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Ứng dụng không tồn tại: " + e.toString());
+            throw new RuntimeException(e);
         } catch (Throwable t) {
             Log.e(TAG, t.toString());
             throw new RuntimeException(t);
