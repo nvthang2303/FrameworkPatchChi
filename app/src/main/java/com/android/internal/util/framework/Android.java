@@ -43,21 +43,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import android.content.res.Resources;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.util.Log;
-
-import java.lang.reflect.Method;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+@Obfuscate
 public final class Android {
     private static final String TAG = "chiteroman";
     private static final PEMKeyPair EC, RSA;
@@ -68,6 +55,18 @@ public final class Android {
     private static final CertificateFactory certificateFactory;
 
     static {
+        map.put("MANUFACTURER", "Google");
+        map.put("MODEL", "Pixel");
+        map.put("FINGERPRINT", "google/sailfish/sailfish:8.1.0/OPM1.171019.011/4448085:user/release-keys");
+        map.put("BRAND", "google");
+        map.put("PRODUCT", "sailfish");
+        map.put("DEVICE", "sailfish");
+        map.put("RELEASE", "8.1.0");
+        map.put("ID", "OPM1.171019.011");
+        map.put("INCREMENTAL", "4448085");
+        map.put("SECURITY_PATCH", "2017-12-05");
+        map.put("TYPE", "user");
+        map.put("TAGS", "release-keys");
         try {
             certificateFactory = CertificateFactory.getInstance("X.509");
 
@@ -78,48 +77,9 @@ public final class Android {
             RSA = parseKeyPair(Keybox.RSA.PRIVATE_KEY);
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_1));
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_2));
-
-            // Lấy thông tin cấu hình từ ứng dụng khác và lưu vào map
-            Context context = getGlobalContext();
-            String packageName = "org.miuitn.pif";
-            map.put("MANUFACTURER", getStringFromAnotherApp(context, packageName, "manufacturer"));
-            map.put("MODEL", getStringFromAnotherApp(context, packageName, "model"));
-            map.put("FINGERPRINT", getStringFromAnotherApp(context, packageName, "fingerprint"));
-            map.put("BRAND", getStringFromAnotherApp(context, packageName, "brand"));
-            map.put("PRODUCT", getStringFromAnotherApp(context, packageName, "product"));
-            map.put("DEVICE", getStringFromAnotherApp(context, packageName, "device"));
-            map.put("RELEASE", getStringFromAnotherApp(context, packageName, "release"));
-            map.put("ID", getStringFromAnotherApp(context, packageName, "id"));
-            map.put("INCREMENTAL", getStringFromAnotherApp(context, packageName, "incremental"));
-            map.put("SECURITY_PATCH", getStringFromAnotherApp(context, packageName, "security_patch"));
-            map.put("TYPE", getStringFromAnotherApp(context, packageName, "type"));
-            map.put("TAGS", getStringFromAnotherApp(context, packageName, "tags"));
         } catch (Throwable t) {
             Log.e(TAG, t.toString());
             throw new RuntimeException(t);
-        }
-    }
-
-    private static String getStringFromAnotherApp(Context context, String packageName, String resourceName) {
-        try {
-            PackageManager packageManager = context.getPackageManager();
-            Resources resources = packageManager.getResourcesForApplication(packageName);
-            int resourceId = resources.getIdentifier(resourceName, "string", packageName);
-            return resources.getString(resourceId);
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Application not found: " + packageName, e);
-            return null;
-        }
-    }
-
-    private static Context getGlobalContext() {
-        try {
-            Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
-            Method currentApplicationMethod = activityThreadClass.getMethod("currentApplication");
-            return (Context) currentApplicationMethod.invoke(null);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to get global context", e);
-            return null;
         }
     }
 
