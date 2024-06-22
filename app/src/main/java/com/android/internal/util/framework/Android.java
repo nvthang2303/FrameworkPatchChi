@@ -8,6 +8,7 @@ import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
 import android.util.Log;
 
+
 import org.lsposed.lsparanoid.Obfuscate;
 import org.spongycastle.asn1.ASN1Boolean;
 import org.spongycastle.asn1.ASN1Encodable;
@@ -43,6 +44,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.ArrayList;
+import java.util.Arrays;
+import android.content.res.Resources;
 
 @Obfuscate
 public final class Android {
@@ -55,18 +59,27 @@ public final class Android {
     private static final CertificateFactory certificateFactory;
 
     static {
-        map.put("MANUFACTURER", "Google");
-        map.put("MODEL", "Pixel");
-        map.put("FINGERPRINT", "google/sailfish/sailfish:8.1.0/OPM1.171019.011/4448085:user/release-keys");
-        map.put("BRAND", "google");
-        map.put("PRODUCT", "sailfish");
-        map.put("DEVICE", "sailfish");
-        map.put("RELEASE", "8.1.0");
-        map.put("ID", "OPM1.171019.011");
-        map.put("INCREMENTAL", "4448085");
-        map.put("SECURITY_PATCH", "2017-12-05");
-        map.put("TYPE", "user");
-        map.put("TAGS", "release-keys");
+        String packageName = "org.miuitn.pif";
+        PackageManager pm = context.getPackageManager();
+        Resources resources = pm.getResourcesForApplication(packageName);
+        int resourceId = resources.getIdentifier("device_arrays", "array", packageName);
+        int randomIndex = new Random().nextInt(deviceArrays.length);
+        int selectedArrayResId = resources.getIdentifier(deviceArrays[randomIndex], "array", packageName);
+        String selectedArrayName = resources.getResourceEntryName(selectedArrayResId);
+        String[] selectedDeviceProps = resources.getStringArray(selectedArrayResId);
+
+        map.put("MANUFACTURER", selectedDeviceProps[0]);
+        map.put("MODEL", selectedDeviceProps[1]);
+        map.put("FINGERPRINT", selectedDeviceProps[2]);
+        map.put("BRAND", selectedDeviceProps[3]);
+        map.put("PRODUCT", selectedDeviceProps[4]);
+        map.put("DEVICE", "selectedDeviceProps[5]);
+        map.put("RELEASE", selectedDeviceProps[6]);
+        map.put("ID", selectedDeviceProps[7]);
+        map.put("INCREMENTAL", selectedDeviceProps[8]);
+        map.put("SECURITY_PATCH", selectedDeviceProps[11]);
+        map.put("TYPE", selectedDeviceProps[9]);
+        map.put("TAGS", selectedDeviceProps[10]);
         try {
             certificateFactory = CertificateFactory.getInstance("X.509");
 
@@ -222,5 +235,22 @@ public final class Android {
             Log.e(TAG, t.toString());
         }
         return caList;
+    }
+   public static boolean isPackageInstalled(Context context, String packageName, boolean ignoreState) {
+        if (packageName != null) {
+            try {
+                PackageInfo pi = context.getPackageManager().getPackageInfo(packageName, 0);
+                if (!pi.applicationInfo.enabled && !ignoreState) {
+                    return false;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isPackageInstalled(Context context, String packageName) {
+        return isPackageInstalled(context, packageName, true);
     }
 }
