@@ -7,7 +7,6 @@ import android.os.Build;
 import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
 import android.util.Log;
-import android.content.pm.PackageInfo;
 
 import org.lsposed.lsparanoid.Obfuscate;
 import org.spongycastle.asn1.ASN1Boolean;
@@ -60,7 +59,6 @@ public final class Android {
 
     static {
         String packageName = "org.miuitn.pif";
-        PackageManager pm = context.getPackageManager();
         Resources resources = pm.getResourcesForApplication(packageName);
         int resourceId = resources.getIdentifier("device_arrays", "array", packageName);
         String[] deviceArrays = resources.getStringArray(resourceId);
