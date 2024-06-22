@@ -1,0 +1,38 @@
+name: Build release
+
+on:
+  workflow_dispatch:
+    inputs:
+     ROM_URL:
+      description: 'OTA Url'
+      default: ''
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Setup Onedrive 
+        run: |
+           cd $GITHUB_WORKSPACE
+           curl https://rclone.org/install.sh | sudo bash
+           mkdir -p ~/.config/rclone/
+           cp rclone.conf ~/.config/rclone/  
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        id: build
+        run: |
+          echo "TAG=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "SHA=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "DATE=$(git show --format=%cs | head -n1)" >> $GITHUB_OUTPUT
+          ./gradlew clean assembleRelease
+          rclone copy -P app/build/intermediates/dex/release/*/classes.dex gdrive:/MIUITN/
