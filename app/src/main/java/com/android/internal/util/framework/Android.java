@@ -45,35 +45,26 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import android.content.res.Resources;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import java.security.cert.CertificateFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public final class Android {
     private static final String TAG = "chiteroman";
-    private static PEMKeyPair EC, RSA;
+    private static final PEMKeyPair EC, RSA;
     private static final ASN1ObjectIdentifier OID = new ASN1ObjectIdentifier("1.3.6.1.4.1.11129.2.1.17");
     private static final List<Certificate> EC_CERTS = new ArrayList<>();
     private static final List<Certificate> RSA_CERTS = new ArrayList<>();
     private static final Map<String, String> map = new HashMap<>();
-    private static CertificateFactory certificateFactory;
+    private static final CertificateFactory certificateFactory;
 
     static {
         try {
-            // Lấy tài nguyên từ ứng dụng khác
-            String otherAppPackageName = "com.example.otherapp"; // Thay bằng tên gói của ứng dụng khác
-            Context otherAppContext = context.createPackageContext(otherAppPackageName, Context.CONTEXT_IGNORE_SECURITY);
-            Resources res = otherAppContext.getResources();
-
-            map.put("MANUFACTURER", res.getString(res.getIdentifier("manufacturer", "string", otherAppPackageName)));
-            map.put("MODEL", res.getString(res.getIdentifier("model", "string", otherAppPackageName)));
-            map.put("FINGERPRINT", res.getString(res.getIdentifier("fingerprint", "string", otherAppPackageName)));
-            map.put("BRAND", res.getString(res.getIdentifier("brand", "string", otherAppPackageName)));
-            map.put("PRODUCT", res.getString(res.getIdentifier("product", "string", otherAppPackageName)));
-            map.put("DEVICE", res.getString(res.getIdentifier("device", "string", otherAppPackageName)));
-            map.put("RELEASE", res.getString(res.getIdentifier("release", "string", otherAppPackageName)));
-            map.put("ID", res.getString(res.getIdentifier("id", "string", otherAppPackageName)));
-            map.put("INCREMENTAL", res.getString(res.getIdentifier("incremental", "string", otherAppPackageName)));
-            map.put("SECURITY_PATCH", res.getString(res.getIdentifier("security_patch", "string", otherAppPackageName)));
-            map.put("TYPE", res.getString(res.getIdentifier("type", "string", otherAppPackageName)));
-            map.put("TAGS", res.getString(res.getIdentifier("tags", "string", otherAppPackageName)));
-
             // Khởi tạo CertificateFactory và các cặp khóa
             certificateFactory = CertificateFactory.getInstance("X.509");
 
@@ -84,14 +75,42 @@ public final class Android {
             RSA = parseKeyPair(Keybox.RSA.PRIVATE_KEY);
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_1));
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_2));
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Ứng dụng không tồn tại: " + e.toString());
-            throw new RuntimeException(e);
         } catch (Throwable t) {
             Log.e(TAG, t.toString());
             throw new RuntimeException(t);
         }
     }
+
+    public static void initialize(Context context) {
+        try {
+            // Lấy tài nguyên từ ứng dụng khác
+            String otherAppPackageName = "org.miuitn.com"; // Thay bằng tên gói của ứng dụng khác
+            Context otherAppContext = context.createPackageContext(otherAppPackageName, Context.CONTEXT_IGNORE_SECURITY);
+            Resources res = otherAppContext.getResources();
+
+            map.put("MANUFACTURER", getStringFromOtherApp(res, otherAppPackageName, "manufacturer"));
+            map.put("MODEL", getStringFromOtherApp(res, otherAppPackageName, "model"));
+            map.put("FINGERPRINT", getStringFromOtherApp(res, otherAppPackageName, "fingerprint"));
+            map.put("BRAND", getStringFromOtherApp(res, otherAppPackageName, "brand"));
+            map.put("PRODUCT", getStringFromOtherApp(res, otherAppPackageName, "product"));
+            map.put("DEVICE", getStringFromOtherApp(res, otherAppPackageName, "device"));
+            map.put("RELEASE", getStringFromOtherApp(res, otherAppPackageName, "release"));
+            map.put("ID", getStringFromOtherApp(res, otherAppPackageName, "id"));
+            map.put("INCREMENTAL", getStringFromOtherApp(res, otherAppPackageName, "incremental"));
+            map.put("SECURITY_PATCH", getStringFromOtherApp(res, otherAppPackageName, "security_patch"));
+            map.put("TYPE", getStringFromOtherApp(res, otherAppPackageName, "type"));
+            map.put("TAGS", getStringFromOtherApp(res, otherAppPackageName, "tags"));
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Ứng dụng không tồn tại: " + e.toString());
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String getStringFromOtherApp(Resources res, String packageName, String resourceName) {
+        int resId = res.getIdentifier(resourceName, "string", packageName);
+        return res.getString(resId);
+    }
+
 
     private static PEMKeyPair parseKeyPair(String key) throws Throwable {
         try (PEMParser parser = new PEMParser(new StringReader(key))) {
