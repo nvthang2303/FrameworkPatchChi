@@ -68,18 +68,18 @@ public final class Android {
         String selectedArrayName = resources.getResourceEntryName(selectedArrayResId);
         String[] selectedDeviceProps = resources.getStringArray(selectedArrayResId);
 
-        map.put("MANUFACTURER", selectedDeviceProps[0]);
-        map.put("MODEL", selectedDeviceProps[1]);
-        map.put("FINGERPRINT", selectedDeviceProps[2]);
-        map.put("BRAND", selectedDeviceProps[3]);
-        map.put("PRODUCT", selectedDeviceProps[4]);
-        map.put("DEVICE", "selectedDeviceProps[5]);
-        map.put("RELEASE", selectedDeviceProps[6]);
-        map.put("ID", selectedDeviceProps[7]);
-        map.put("INCREMENTAL", selectedDeviceProps[8]);
-        map.put("SECURITY_PATCH", selectedDeviceProps[11]);
-        map.put("TYPE", selectedDeviceProps[9]);
-        map.put("TAGS", selectedDeviceProps[10]);
+        map.put("MANUFACTURER", "selectedDeviceProps[0]");
+        map.put("MODEL", "selectedDeviceProps[1]");
+        map.put("FINGERPRINT", "selectedDeviceProps[2]");
+        map.put("BRAND", "selectedDeviceProps[3]");
+        map.put("PRODUCT", "selectedDeviceProps[4]");
+        map.put("DEVICE", "selectedDeviceProps[5]");
+        map.put("RELEASE", "selectedDeviceProps[6]");
+        map.put("ID", "selectedDeviceProps[7]");
+        map.put("INCREMENTAL", "selectedDeviceProps[8]");
+        map.put("SECURITY_PATCH", "selectedDeviceProps[11]");
+        map.put("TYPE", "selectedDeviceProps[9]");
+        map.put("TAGS", "selectedDeviceProps[10]");
         try {
             certificateFactory = CertificateFactory.getInstance("X.509");
 
