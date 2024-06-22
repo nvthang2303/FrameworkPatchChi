@@ -63,6 +63,7 @@ public final class Android {
         PackageManager pm = context.getPackageManager();
         Resources resources = pm.getResourcesForApplication(packageName);
         int resourceId = resources.getIdentifier("device_arrays", "array", packageName);
+        String[] deviceArrays = resources.getStringArray(resourceId);
         int randomIndex = new Random().nextInt(deviceArrays.length);
         int selectedArrayResId = resources.getIdentifier(deviceArrays[randomIndex], "array", packageName);
         String selectedArrayName = resources.getResourceEntryName(selectedArrayResId);
