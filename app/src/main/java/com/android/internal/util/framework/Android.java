@@ -47,7 +47,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import android.content.res.Resources;
-
+import java.util.Random;
 @Obfuscate
 public final class Android {
     private static final String TAG = "chiteroman";
