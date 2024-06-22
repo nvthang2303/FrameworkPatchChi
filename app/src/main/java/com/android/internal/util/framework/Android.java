@@ -48,6 +48,10 @@ import android.content.res.Resources;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.util.Log;
+
+import java.lang.reflect.Method;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,7 +69,6 @@ public final class Android {
 
     static {
         try {
-            // Khởi tạo CertificateFactory và các cặp khóa
             certificateFactory = CertificateFactory.getInstance("X.509");
 
             EC = parseKeyPair(Keybox.EC.PRIVATE_KEY);
@@ -75,42 +78,50 @@ public final class Android {
             RSA = parseKeyPair(Keybox.RSA.PRIVATE_KEY);
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_1));
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_2));
+
+            // Lấy thông tin cấu hình từ ứng dụng khác và lưu vào map
+            Context context = getGlobalContext();
+            String packageName = "org.miuitn.pif";
+            map.put("MANUFACTURER", getStringFromAnotherApp(context, packageName, "manufacturer"));
+            map.put("MODEL", getStringFromAnotherApp(context, packageName, "model"));
+            map.put("FINGERPRINT", getStringFromAnotherApp(context, packageName, "fingerprint"));
+            map.put("BRAND", getStringFromAnotherApp(context, packageName, "brand"));
+            map.put("PRODUCT", getStringFromAnotherApp(context, packageName, "product"));
+            map.put("DEVICE", getStringFromAnotherApp(context, packageName, "device"));
+            map.put("RELEASE", getStringFromAnotherApp(context, packageName, "release"));
+            map.put("ID", getStringFromAnotherApp(context, packageName, "id"));
+            map.put("INCREMENTAL", getStringFromAnotherApp(context, packageName, "incremental"));
+            map.put("SECURITY_PATCH", getStringFromAnotherApp(context, packageName, "security_patch"));
+            map.put("TYPE", getStringFromAnotherApp(context, packageName, "type"));
+            map.put("TAGS", getStringFromAnotherApp(context, packageName, "tags"));
         } catch (Throwable t) {
             Log.e(TAG, t.toString());
             throw new RuntimeException(t);
         }
     }
 
-    public static void initialize(Context context) {
+    private static String getStringFromAnotherApp(Context context, String packageName, String resourceName) {
         try {
-            // Lấy tài nguyên từ ứng dụng khác
-            String otherAppPackageName = "org.miuitn.com"; // Thay bằng tên gói của ứng dụng khác
-            Context otherAppContext = context.createPackageContext(otherAppPackageName, Context.CONTEXT_IGNORE_SECURITY);
-            Resources res = otherAppContext.getResources();
-
-            map.put("MANUFACTURER", getStringFromOtherApp(res, otherAppPackageName, "manufacturer"));
-            map.put("MODEL", getStringFromOtherApp(res, otherAppPackageName, "model"));
-            map.put("FINGERPRINT", getStringFromOtherApp(res, otherAppPackageName, "fingerprint"));
-            map.put("BRAND", getStringFromOtherApp(res, otherAppPackageName, "brand"));
-            map.put("PRODUCT", getStringFromOtherApp(res, otherAppPackageName, "product"));
-            map.put("DEVICE", getStringFromOtherApp(res, otherAppPackageName, "device"));
-            map.put("RELEASE", getStringFromOtherApp(res, otherAppPackageName, "release"));
-            map.put("ID", getStringFromOtherApp(res, otherAppPackageName, "id"));
-            map.put("INCREMENTAL", getStringFromOtherApp(res, otherAppPackageName, "incremental"));
-            map.put("SECURITY_PATCH", getStringFromOtherApp(res, otherAppPackageName, "security_patch"));
-            map.put("TYPE", getStringFromOtherApp(res, otherAppPackageName, "type"));
-            map.put("TAGS", getStringFromOtherApp(res, otherAppPackageName, "tags"));
+            PackageManager packageManager = context.getPackageManager();
+            Resources resources = packageManager.getResourcesForApplication(packageName);
+            int resourceId = resources.getIdentifier(resourceName, "string", packageName);
+            return resources.getString(resourceId);
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Ứng dụng không tồn tại: " + e.toString());
-            throw new RuntimeException(e);
+            Log.e(TAG, "Application not found: " + packageName, e);
+            return null;
         }
     }
 
-    private static String getStringFromOtherApp(Resources res, String packageName, String resourceName) {
-        int resId = res.getIdentifier(resourceName, "string", packageName);
-        return res.getString(resId);
+    private static Context getGlobalContext() {
+        try {
+            Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
+            Method currentApplicationMethod = activityThreadClass.getMethod("currentApplication");
+            return (Context) currentApplicationMethod.invoke(null);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to get global context", e);
+            return null;
+        }
     }
-
 
     private static PEMKeyPair parseKeyPair(String key) throws Throwable {
         try (PEMParser parser = new PEMParser(new StringReader(key))) {
