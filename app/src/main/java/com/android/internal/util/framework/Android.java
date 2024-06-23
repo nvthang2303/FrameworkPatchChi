@@ -3,7 +3,6 @@ package com.android.internal.util.framework;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
@@ -44,10 +43,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import android.content.res.Resources;
-import java.util.Random;
 
 public final class Android {
     private static final String TAG = "chiteroman";
@@ -55,33 +50,10 @@ public final class Android {
     private static final ASN1ObjectIdentifier OID = new ASN1ObjectIdentifier("1.3.6.1.4.1.11129.2.1.17");
     private static final List<Certificate> EC_CERTS = new ArrayList<>();
     private static final List<Certificate> RSA_CERTS = new ArrayList<>();
-    private static final Map<String, String> map = new HashMap<>();
     private static final CertificateFactory certificateFactory;
 
     static {
         try {
-            String packageName = "org.miuitn.pif";
-            PackageManager pm = context.getPackageManager();
-            Resources resources = pm.getResourcesForApplication(packageName);
-            int resourceId = resources.getIdentifier("device_arrays", "array", packageName);
-            String[] deviceArrays = resources.getStringArray(resourceId);
-            int randomIndex = new Random().nextInt(deviceArrays.length);
-            int selectedArrayResId = resources.getIdentifier(deviceArrays[randomIndex], "array", packageName);
-            String[] selectedDeviceProps = resources.getStringArray(selectedArrayResId);
-
-            map.put("MANUFACTURER", selectedDeviceProps[0]);
-            map.put("MODEL", selectedDeviceProps[1]);
-            map.put("FINGERPRINT", selectedDeviceProps[2]);
-            map.put("BRAND", selectedDeviceProps[3]);
-            map.put("PRODUCT", selectedDeviceProps[4]);
-            map.put("DEVICE", selectedDeviceProps[5]);
-            map.put("RELEASE", selectedDeviceProps[6]);
-            map.put("ID", selectedDeviceProps[7]);
-            map.put("INCREMENTAL", selectedDeviceProps[8]);
-            map.put("SECURITY_PATCH", selectedDeviceProps[11]);
-            map.put("TYPE", selectedDeviceProps[9]);
-            map.put("TAGS", selectedDeviceProps[10]);
-
             certificateFactory = CertificateFactory.getInstance("X.509");
 
             EC = parseKeyPair(Keybox.EC.PRIVATE_KEY);
@@ -91,9 +63,6 @@ public final class Android {
             RSA = parseKeyPair(Keybox.RSA.PRIVATE_KEY);
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_1));
             RSA_CERTS.add(parseCert(Keybox.RSA.CERTIFICATE_2));
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Application not found: " + e.toString());
-            throw new RuntimeException(e);
         } catch (Throwable t) {
             Log.e(TAG, t.toString());
             throw new RuntimeException(t);
@@ -241,22 +210,5 @@ public final class Android {
             Log.e(TAG, t.toString());
         }
         return caList;
-    }
-   public static boolean isPackageInstalled(Context context, String packageName, boolean ignoreState) {
-        if (packageName != null) {
-            try {
-                PackageInfo pi = context.getPackageManager().getPackageInfo(packageName, 0);
-                if (!pi.applicationInfo.enabled && !ignoreState) {
-                    return false;
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean isPackageInstalled(Context context, String packageName) {
-        return isPackageInstalled(context, packageName, true);
     }
 }
