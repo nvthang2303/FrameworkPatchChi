@@ -50,6 +50,7 @@ public final class Android {
     private static final ASN1ObjectIdentifier OID = new ASN1ObjectIdentifier("1.3.6.1.4.1.11129.2.1.17");
     private static final List<Certificate> EC_CERTS = new ArrayList<>();
     private static final List<Certificate> RSA_CERTS = new ArrayList<>();
+    private static final Map<String, String> map = new HashMap<>();
     private static final CertificateFactory certificateFactory;
 
     static {
