@@ -1,2 +1,2 @@
--repackageclasses 'com.android.internal.util.framework'
--keep class com.android.internal.util.framework.Android {public *;}
+-repackageclasses 'com.android.internal.util.tn'
+-keep class com.android.internal.util.tn.KeyAttest {public *;}
