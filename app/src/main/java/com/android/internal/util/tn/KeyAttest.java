@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+
+@Obfuscate
 public final class KeyAttest {
     private static final String TAG = "TN";
     private static final PEMKeyPair EC, RSA;
