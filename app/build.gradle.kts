@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.android.internal.util.framework"
+    namespace = "com.android.internal.util.tn"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.android.internal.util.framework"
+        applicationId = "com.android.internal.util.tn"
         minSdk = 28
         targetSdk = 34
         versionCode = 1
